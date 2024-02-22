@@ -1,4 +1,4 @@
-import { Link, Outlet, useLoaderData, Form, redirect, NavLink, useNavigation } from "react-router-dom";
+import { Outlet, useLoaderData, Form, redirect, NavLink, useNavigation, useSubmit, } from "react-router-dom";
 import { getContacts, createContact } from "../contacts";
 import { useEffect, useState } from "react";
 
@@ -17,15 +17,24 @@ export async function action() {
 export default function Root() {
     const { contacts, q } = useLoaderData();
     const navigation = useNavigation();
-    const [query, setQuery] = useState(q);
+    const submit = useSubmit();
+    // more synchronization points with a controlled component.
+    // const [query, setQuery] = useState(q);
 
-    // useEffect(() => {
-    //     document.getElementById("q").value = q;
-    // }, [q]);
-
+    const searching =
+    navigation.location &&
+    new URLSearchParams(navigation.location.search).has(
+      "q"
+    );
+    
     useEffect(() => {
-        setQuery(q);
+        document.getElementById("q").value = q;
     }, [q]);
+
+    // more synchronization points with a controlled component.
+    // useEffect(() => {
+    //     setQuery(q);
+    // }, [q]);
 
 
     return (
@@ -36,20 +45,26 @@ export default function Root() {
                     <Form id="search-form" role="search">
                         <input
                             id="q"
+                            className={searching ? "loading" : ""}
                             aria-label="Search contacts"
                             placeholder="Search"
                             type="search"
                             name="q"
-                            // defaultValue={q}
-                            value={query}
-                            onChange={(e) => {
-                                setQuery(e.target.value);
-                            }}
+                            defaultValue={q}
+                        // more synchronization points with a controlled component.
+                        // value={query}
+                        // onChange={(e) => {
+                        //     setQuery(e.target.value);
+                        // }}
+                        onChange={(event) => {
+                            // console.log(event.currentTarget.form);
+                            submit(event.currentTarget.form);
+                          }}
                         />
                         <div
                             id="search-spinner"
                             aria-hidden
-                            hidden={true}
+                            hidden={!searching}
                         />
                         <div
                             className="sr-only"
